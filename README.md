@@ -4,7 +4,7 @@ a reliable and fault-tolerant Kafka messaging system can be
 implemented using Spring Boot.
 
 The article that covers the implementation can be found
-here:
+here: https://arnoldgalovics.com/fault-tolerant-and-reliable-messaging-with-kafka-and-spring-boot/
 
 The applicatio uses manual offset commit in order to achieve
 at least once message delivery guarantee. Additionally, to
