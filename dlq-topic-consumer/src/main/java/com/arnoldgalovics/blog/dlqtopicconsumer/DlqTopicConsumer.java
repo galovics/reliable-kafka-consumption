@@ -21,9 +21,6 @@ public class DlqTopicConsumer {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
-    @Autowired
-    private AsyncTaskExecutor asyncTaskExecutor;
-
     @KafkaListener(id = "dlq-topic-consumer", groupId = "dlq-topic-group", topics = "dlq-topic")
     public void consume(ConsumerRecord<?, ?> consumerRecord, Acknowledgment ack) {
         String json = consumerRecord.value().toString();
@@ -43,15 +40,9 @@ public class DlqTopicConsumer {
                     ProducerRecord<String, String> record = new ProducerRecord<>(originalTopic, json);
                     byte[] retryCountHeaderInByte = Integer.valueOf(retryCount).toString().getBytes(UTF_8);
                     record.headers().add(RETRY_COUNT_HEADER_KEY, retryCountHeaderInByte);
-                    asyncTaskExecutor.execute(() -> {
-                        try {
-                            log.info("Waiting for 5 seconds until resend");
-                            Thread.sleep(5000);
-                            kafkaTemplate.send(record);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    });
+                    log.info("Waiting for 5 seconds until resend");
+                    Thread.sleep(5000);
+                    kafkaTemplate.send(record);
                 } else {
                     log.error("Retry limit exceeded for message {}", json);
                 }
